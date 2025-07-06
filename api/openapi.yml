@@ -1,0 +1,83 @@
+---
+openapi: '3.0.3'
+
+info:
+  title: REST API for dynv6
+  description: |
+    This is a preview of our HTTP [REST][] API for dynv6.com. Currently,
+    we're supporting updates to zones and records (which should cover the
+    bulk of use cases).
+
+    Feel free to drop us a note if you find a bug or if you miss a feature.
+
+    [REST]: https://en.wikipedia.org/wiki/Representational_state_transfer
+  version:    '0.2.0'
+  contact:
+    email:    kontakt@digineo.de
+    url:      https://dynv6.com
+  x-logo:
+    url:      https://akosidongz.github.io/dongzpo/dynv6.png
+    altText:  "dynv6 logo"
+
+servers:
+  - url: https://dynv6.com/api/v2
+
+tags:
+  - name: records
+  - name: zones
+
+paths:
+  /zones:
+    $ref: './paths/zones.yml#/Zones'
+
+  /zones/{id}:
+    $ref: './paths/zone.yml#/ZoneByID'
+
+  /zones/by-name/{name}:
+    $ref: './paths/zone.yml#/ZoneByName'
+
+  /zones/{zoneID}/records:
+    $ref: './paths/records.yml#/Records'
+
+  /zones/{zoneID}/records/{recordID}:
+    $ref: './paths/record.yml#/Record'
+
+components:
+  schemas:
+    Zone:
+      $ref: './models/zone.yml#/Zone'
+
+    Record:
+      $ref: './models/record.yml#/RecordRead'
+
+    ErrorResponse:
+      $ref: './models/error.yml#/ErrorResponse'
+
+    ValidationError:
+      $ref: './models/error.yml#/ValidationError'
+
+  securitySchemes:
+    Bearer:
+      description: |
+        To authenticate with the REST API you first need to
+        [create an HTTP token](https://dynv6.com/keys/). An API key is
+        restricted to your account, i.e. you cannot edit zones and records
+        of other users. You may optionally further restrict an HTTP token
+        to a single zone. You can create as many keys as you wish.
+
+        Then add the following header to your HTTP request:
+
+            Authorization: Bearer YOUR_TOKEN
+
+        (replace `YOUR_TOKEN` with, well, your token). If the requests sent
+        to our servers contain an invalid token, you'll generally receive
+        a `401 Unauthorized` response.
+
+        Example with cURL:
+
+            curl \
+                -H "Authorization: Bearer YOUR_TOKEN" \
+                -H "Accept: application/json" \
+                https://dynv6.com/api/v2/zones
+      type: http
+      scheme: bearer

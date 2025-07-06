@@ -1,0 +1,9 @@
+/dist/*
+!/dist/.gitkeep
+
+/docs/*
+!/docs/.gitkeep
+!/docs/dynv6.png
+
+/publisher/node_modules
+/publisher/.have-image

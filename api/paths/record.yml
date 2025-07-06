@@ -1,0 +1,98 @@
+---
+Record:
+  parameters:
+    - name: zoneID
+      in: path
+      description: ID of the parent zone under which the record will be created.
+      required: true
+      schema:
+        type: integer
+        format: int64
+    - name: recordID
+      in: path
+      description: ID of the record in question.
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+  get:
+    tags: ["records"]
+    summary: Get details for a record
+    description: |
+      Returns details of the specified record by its ID that the current user has access to.
+    operationId: getRecordByID
+    responses:
+      '200':
+        description: |
+          Record
+        content:
+          application/json:
+            schema:
+              $ref: '../models/record.yml#/RecordRead'
+      '401':
+        description: |
+          Error: Unauthorized
+      '403':
+        description: |
+          Error: Forbidden
+      '404':
+        description: |
+          Error: Record or zone not found
+    security:
+      - Bearer: []
+
+  patch:
+    tags: ["records"]
+    summary: Update an existing record
+    description: |
+      Updates the given record based on the ID supplied and owned by the current user.
+    operationId: updateRecord
+    responses:
+      '200':
+        description: |
+          Updated record
+        content:
+          application/json:
+            schema:
+              $ref: '../models/record.yml#/RecordRead'
+      '401':
+        description: |
+          Error: Unauthorized
+      '403':
+        description: |
+          Error: Forbidden
+      '404':
+        description: |
+          Error: Record or zone not found
+      '422':
+        description: |
+          Error: Field value validation failed
+        content:
+          application/json:
+            schema:
+              $ref: '../models/error.yml#/ErrorResponse'
+    security:
+      - Bearer: []
+
+  delete:
+    tags: ["records"]
+    summary: Delete a record
+    description: |
+      Deletes the given record based on the ID supplied and owned by the current user.
+    operationId: deleteRecord
+    responses:
+      '204':
+        description: |
+          Record was successfully deleted
+      '401':
+        description: |
+          Error: Unauthorized
+      '403':
+        description: |
+          Error: Forbidden
+      '404':
+        description: |
+          Error: Record or zone not found
+    security:
+      - Bearer: []

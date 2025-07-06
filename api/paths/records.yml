@@ -1,0 +1,83 @@
+---
+Records:
+  parameters:
+    - name: zoneID
+      in: path
+      description: ID of the parent zone to fetch the records for
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+  get:
+    tags: ["records"]
+    summary: Get a list of records
+    description: |
+      Returns a list of records for the given zone by its ID and is owned by the current user.
+    operationId: findRecords
+    responses:
+      '200':
+        description: |
+          List of records
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../models/record.yml#/RecordRead'
+      '401':
+        description: |
+          Error: Unauthorized
+      '403':
+        description: |
+          Error: Forbidden
+      '404':
+        description: |
+          Error: Zone not found
+    security:
+      - Bearer: []
+
+  post:
+    tags: ["records"]
+    summary: Add a new record
+    description: |
+      Adds a new record to the given zone owned by the current user.
+    operationId: addRecord
+    requestBody:
+      description: |
+        Record to add.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../models/record.yml#/NewRecord'
+
+    responses:
+      '200':
+        description: |
+          Record was created
+        content:
+          application/json:
+            schema:
+              $ref: '../models/record.yml#/RecordRead'
+      '400':
+        description: |
+          Error: Malformed client data
+      '401':
+        description: |
+          Error: Unauthorized
+      '403':
+        description: |
+          Error: Forbidden
+      '404':
+        description: |
+          Error: Record not found
+      '422':
+        description: |
+          Error: Field value validation failed
+        content:
+          application/json:
+            schema:
+              $ref: '../models/error.yml#/ErrorResponse'
+    security:
+      - Bearer: []

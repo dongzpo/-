@@ -1,0 +1,33 @@
+---
+name: Build Documentation
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+
+    - name: Build Documentation
+      run: make docs/index.html
+
+    # private key: https://github.com/dynv6/api-spec/settings/secrets
+    # public key: https://github.com/dynv6/api-spec/settings/keys
+    - name: Install SSH Client
+      uses: webfactory/ssh-agent@v0.5.2
+      with:
+        ssh-private-key: ${{ secrets.DOCS_DEPLOY_KEY }}
+
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        BRANCH: gh-pages
+        FOLDER: docs
+        SSH: true
+        CLEAN: true

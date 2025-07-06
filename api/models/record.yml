@@ -1,0 +1,117 @@
+---
+RecordFieldType:
+  type: "string"
+  enum: ["A", "AAAA", "CAA", "CNAME", "MX", "SPF", "SRV", "TXT"]
+
+Record:
+  properties:
+    name:
+      type: string
+      format: hostname
+    priority:
+      description: |
+        The `priority` field defines an order. Given multiple records with a
+        priority, the ones with lower values will generally be preferred.
+        Usually, a client fetches all records, sorts them by priority and
+        tries one after the other.
+
+        **Note:** The `priority` field is currently only supported for
+        `MX` and `SRV` records. Other record types silently ignore this field.
+      type: integer
+      format: int64
+      minimum: 0
+      maximum: 65535
+    port:
+      description: |
+        The `port` the target port for a `SRV` record.
+        Other record types silently ignore this field.
+      type: integer
+      format: int64
+      minimum: 0
+      maximum: 65535
+    weight:
+      description: |
+        The `weight` the weight for a `SRV` record.
+        Other record types silently ignore this field.
+      type: integer
+      format: int64
+      minimum: 0
+      maximum: 65535
+    flags:
+      description: |
+        The `flags` field represents a bit-field used for extensions for
+        `CAA` records. RFC 8659 currently only specifies a value of 128
+        as *issuer critical*.
+
+        **Note:** This field is only supported for `CAA` records. Other
+        record types silently ignore this field.
+      type: integer
+    tag:
+      description: |
+        **Note:** This field is only supported for `CAA` records. Other
+        record types silently ignore this field.
+      type: "string"
+      enum: ["issue", "issuewild", "iodef"]
+    data:
+      description: |
+        The value (or payload) for a record. For `CNAME`, `MX`, `SRV` records, this might
+        be a hostname, or an IP address for `A` and `AAAA` records, etc.
+      type: string
+
+NewRecord:
+  allOf:
+    - $ref: '#/Record'
+    - type: 'object'
+      properties:
+        type:
+          allOf:
+            - $ref: '#/RecordFieldType'
+            - writeOnly: true
+
+      required:
+        - type
+        - name
+        - data
+
+RecordRead:
+  allOf:
+    - $ref: '#/Record'
+    - type: 'object'
+      properties:
+        expandedData:
+          type: string
+          readOnly: true
+          description: >-
+            This field, when present, contains an expanded value of the `data` field.
+            Examples inlude, but are not limited to:
+
+            - Full qualified names for `CNAME` and `MX` records. Unless the data field
+              itself is fully qualified (i.e. it ends in a `.`), the `expandedData` will
+              concatenate a `.` and the parent zone's name.
+            - Full IPv6 addresses, when `data` is a MAC address. The MAC address gets
+              translated into EUI-64 and will be prefixed with the parent zone's IPv6
+              prefix.
+
+            If the expansion results in the same value as `data` (or if the expansion
+            fails for some reason), the `expandedData` field will be absent.
+
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        zoneID:
+          type: integer
+          format: int64
+          readOnly: true
+
+        type:
+          allOf:
+            - $ref: '#/RecordFieldType'
+            - readOnly: true
+
+      required:
+        - type
+        - name
+        - data
+        - id
+        - zoneID
